@@ -23,6 +23,10 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
+	<key>NSLocationWhenInUseUsageDescription</key> <!-- Newlyadded -->
+	<string>Your app needs access to location when in use.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your app needs access to location at all times.</string>
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -46,6 +50,8 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
+	
+
 	<false/>
 </dict>
 </plist>
