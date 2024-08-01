@@ -44,9 +44,8 @@ export default function LoginForm() {
     // Clear error message if input fields are valid
     setErrorMessage('');
 
-    // Handle login logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
+    // Navigate to the Maps screen with the user's location
+    navigation.navigate('Maps', { location });
   };
 
   const handleRegister = () => {

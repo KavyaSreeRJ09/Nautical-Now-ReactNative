@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, Button, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker'; // Import the Picker from the new package
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import styles from './LoginFormStyles'; // Import the styles
 
 export default function RegisterForm() {
@@ -8,6 +9,7 @@ export default function RegisterForm() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [boatType, setBoatType] = useState('canoe');
+  const navigation = useNavigation(); // Access the navigation object
 
   const handleRegister = () => {
     // Handle registration logic here
@@ -15,6 +17,9 @@ export default function RegisterForm() {
     console.log('Username:', username);
     console.log('Password:', password);
     console.log('Boat Type:', boatType);
+
+    // Navigate back to the Login screen after registration
+    navigation.navigate('Login');
   };
 
   return (
