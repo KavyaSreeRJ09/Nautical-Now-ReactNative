@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, Button, View } from 'react-native';
 import * as Location from 'expo-location';
+import { useNavigation } from '@react-navigation/native';
 import styles from './LoginFormStyles'; // Import the styles
 
 export default function LoginForm() {
@@ -9,6 +10,7 @@ export default function LoginForm() {
   const [location, setLocation] = useState(null);
   const [city, setCity] = useState('');
   const [errorMessage, setErrorMessage] = useState(''); // State for error message
+  const navigation = useNavigation(); // Access the navigation object
 
   useEffect(() => {
     (async () => {
@@ -47,6 +49,10 @@ export default function LoginForm() {
     console.log('Password:', password);
   };
 
+  const handleRegister = () => {
+    navigation.navigate('Register'); // Navigate to the Register screen
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -73,12 +79,8 @@ export default function LoginForm() {
               secureTextEntry
             />
           </View>
-          <TouchableOpacity style={[styles.button, styles.loginButton]} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, styles.registerButton]} onPress={() => console.log('Register')}>
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
+          <Button title="Login" onPress={handleLogin} />
+          <Button title="Register" onPress={handleRegister} color="green" />
           {errorMessage ? (
             <Text style={styles.errorText}>{errorMessage}</Text> // Display error message
           ) : null}

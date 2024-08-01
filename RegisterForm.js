@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, Picker } from 'react-native';
+import { Text, TextInput, Button, View } from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // Import the Picker from the new package
 import styles from './LoginFormStyles'; // Import the styles
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [boatType, setBoatType] = useState('');
+  const [boatType, setBoatType] = useState('canoe');
 
   const handleRegister = () => {
     // Handle registration logic here
@@ -55,18 +56,15 @@ export default function RegisterForm() {
             <Text style={styles.label}>Boat Type</Text>
             <Picker
               selectedValue={boatType}
-              style={styles.picker}
+              style={styles.input}
               onValueChange={(itemValue) => setBoatType(itemValue)}
             >
-              <Picker.Item label="Select Boat Type" value="" />
-              <Picker.Item label="Canoe (Vallam)" value="Canoe" />
-              <Picker.Item label="Catamaran (Kattumaram)" value="Catamaran" />
-              <Picker.Item label="Motor Boat" value="MotorBoat" />
+              <Picker.Item label="Canoe (Vallam)" value="canoe" />
+              <Picker.Item label="Catamaran (Kattumaram)" value="catamaran" />
+              <Picker.Item label="Motor Boat" value="motorboat" />
             </Picker>
           </View>
-          <TouchableOpacity style={[styles.button, styles.registerButton]} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Register</Text>
-          </TouchableOpacity>
+          <Button title="Register" onPress={handleRegister} color="green" />
         </View>
       </View>
     </View>
