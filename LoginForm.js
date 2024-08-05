@@ -85,7 +85,7 @@ export default function LoginForm() {
               <Text style={styles.locationInfo}>
                 Latitude: {location.latitude.toFixed(2)}, Longitude: {location.longitude.toFixed(2)}
               </Text>
-              <Text style={styles.locationInfo}>City: {city}</Text>
+              <Text style={styles.locationInfo}>City Name: {city}</Text>
             </View>
           )}
         </View>
