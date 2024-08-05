@@ -1,5 +1,7 @@
 import { StyleSheet } from 'react-native';
 
+const defaultColor = '#6200EE'; // Default application color
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -17,6 +19,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
+    color: defaultColor, // Apply default color
   },
   loginFormContainer: {
     backgroundColor: '#fff',
@@ -32,6 +35,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: defaultColor, // Apply default color
   },
   formGroup: {
     marginBottom: 15,
@@ -39,6 +43,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: '600',
+    color: defaultColor, // Apply default color
   },
   input: {
     height: 40,
@@ -56,7 +61,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   loginButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: defaultColor, // Apply default color
   },
   registerButton: {
     backgroundColor: '#28a745',
@@ -71,7 +76,7 @@ const styles = StyleSheet.create({
   },
   locationInfo: {
     fontSize: 14,
-    color: '#666',
+    color: defaultColor, // Apply default color
   },
   errorText: {
     color: 'red',

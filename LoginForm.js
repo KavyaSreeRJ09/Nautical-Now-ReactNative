@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, TextInput, Button, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import styles from './LoginFormStyles'; // Import the styles
@@ -9,8 +9,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [location, setLocation] = useState(null);
   const [city, setCity] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // State for error message
-  const navigation = useNavigation(); // Access the navigation object
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
     (async () => {
@@ -23,7 +23,6 @@ export default function LoginForm() {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location.coords);
 
-      // Reverse geocode to get the city name
       let [reverseGeocode] = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -40,16 +39,10 @@ export default function LoginForm() {
       setErrorMessage('Please fill in both email and password.');
       return;
     }
-    
-    // Clear error message if input fields are valid
+
     setErrorMessage('');
 
-    // Navigate to the Maps screen with the user's location
     navigation.navigate('Maps', { location });
-  };
-
-  const handleRegister = () => {
-    navigation.navigate('Register'); // Navigate to the Register screen
   };
 
   return (
@@ -78,10 +71,14 @@ export default function LoginForm() {
               secureTextEntry
             />
           </View>
-          <Button title="Login" onPress={handleLogin} />
-          <Button title="Register" onPress={handleRegister} color="green" />
+          <TouchableOpacity style={[styles.button, styles.loginButton]} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.registerButton]} onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.buttonText}>Register</Text>
+          </TouchableOpacity>
           {errorMessage ? (
-            <Text style={styles.errorText}>{errorMessage}</Text> // Display error message
+            <Text style={styles.errorText}>{errorMessage}</Text>
           ) : null}
           {location && (
             <View style={styles.locationContainer}>
