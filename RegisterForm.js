@@ -1,18 +1,41 @@
 import React, { useState } from 'react';
 import { Text, TextInput, Button, View } from 'react-native';
-import { Picker } from '@react-native-picker/picker'; // Import the Picker from the new package
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
-import styles from './LoginFormStyles'; // Import the styles
+import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
+import styles from './LoginFormStyles';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [boatType, setBoatType] = useState('canoe');
-  const navigation = useNavigation(); // Access the navigation object
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigation = useNavigation();
+
+  const validateUsername = (username) => {
+    const usernamePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+    return usernamePattern.test(username);
+  };
+
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
 
   const handleRegister = () => {
-    // Handle registration logic here
+    if (!validateUsername(username)) {
+      setErrorMessage('Username must start with a letter and contain only letters, numbers, and underscores.');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    // If validation passes, clear the error message
+    setErrorMessage('');
+
     console.log('Email:', email);
     console.log('Username:', username);
     console.log('Password:', password);
@@ -69,6 +92,9 @@ export default function RegisterForm() {
               <Picker.Item label="Motor Boat" value="motorboat" />
             </Picker>
           </View>
+          {errorMessage ? (
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          ) : null}
           <Button title="Register" onPress={handleRegister} color="green" />
         </View>
       </View>
