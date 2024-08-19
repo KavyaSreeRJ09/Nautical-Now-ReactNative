@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import MapView, { Marker, Polyline } from 'react-native-maps';
@@ -78,7 +78,8 @@ export default function Maps() {
     const getData = async () => {
       try {
         const API_URL = 'http://192.168.43.211:5000/api/forecast';
-        const response = await axios.post(API_URL, { ssh_data: [13.0475, 70.2824, 13.0480, 80.2830, 13.0470, 80.2810, 13.0465, 80.2805, 13.0460, 80.2800] });
+        const response = await axios.post(API_URL, { ssh_data: [clickedPosition.latitude, clickedPosition.longitude] });
+        console.log(clickedPosition.latitude, clickedPosition.longitude);
         setForecast(response.data.forecast);
         console.log('Forecast Data:', response.data);
       } catch (error) {
@@ -98,6 +99,10 @@ export default function Maps() {
     setError(null);
     getData();
   };
+
+  useEffect(() => {
+    handleForecast();
+  }, [modalVisible]);
   
 
   return (

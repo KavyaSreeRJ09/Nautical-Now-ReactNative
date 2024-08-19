@@ -43,4 +43,4 @@ def get_forecast():
         return jsonify({'error': 'An error occurred while processing your request'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host="192.168.43.211", port=5000)
