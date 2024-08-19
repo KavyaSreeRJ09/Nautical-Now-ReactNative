@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Modal, Button } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
-import { useRoute } from '@react-navigation/native';
-import { DrawerLayout } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
+import { useRoute } from '@react-navigation/native';
+import axios from 'axios';
+import React, { useState } from 'react';
+import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { DrawerLayout } from 'react-native-gesture-handler';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import Sidebar from './Sidebar';
 
 const marinaBeachCoords = {
@@ -31,6 +32,9 @@ export default function Maps() {
   const [clickedPosition, setClickedPosition] = useState(null);
   const [distance, setDistance] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [forecast, setForecast] = useState(null);
+  const [forecastLoading, setForecastLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleRecenter = () => {
     const newRegion = {
@@ -70,6 +74,32 @@ export default function Maps() {
     setModalVisible(true); // Show modal on click
   };
 
+  const handleForecast = () => {
+    const getData = async () => {
+      try {
+        const API_URL = 'http://192.168.43.211:5000/api/forecast';
+        const response = await axios.post(API_URL, { ssh_data: [13.0475, 70.2824, 13.0480, 80.2830, 13.0470, 80.2810, 13.0465, 80.2805, 13.0460, 80.2800] });
+        setForecast(response.data.forecast);
+        console.log('Forecast Data:', response.data);
+      } catch (error) {
+        console.error('Error fetching forecast:', error.response ? error.response.data : error.message);
+        setError(`Error fetching forecast: ${error.response ? error.response.data.error : error.message}`);
+      } finally {
+        setForecastLoading(false);
+      }
+    }
+  
+    if (!clickedPosition) {
+      console.error('Clicked position is not defined.');
+      return;
+    }
+  
+    setForecastLoading(true);
+    setError(null);
+    getData();
+  };
+  
+
   return (
     <DrawerLayout
       ref={drawerRef}
@@ -92,39 +122,46 @@ export default function Maps() {
             <>
               <Marker
                 coordinate={clickedPosition}
-                title={`Clicked Point`}
+                title="Clicked Position"
                 pinColor="red"
               />
               <Polyline
                 coordinates={[markerPosition, clickedPosition]}
-                strokeColor="red"
+                strokeColor="#000"
                 strokeWidth={2}
               />
             </>
           )}
         </MapView>
-        <TouchableOpacity style={styles.menuIcon} onPress={() => drawerRef.current.openDrawer()}>
-          <Ionicons name="menu" size={32} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.recenterButton} onPress={handleRecenter}>
-          <Ionicons name="locate-outline" size={24} color="white" />
-        </TouchableOpacity>
-        {distance && (
-          <View style={styles.distanceContainer}>
-            <Text style={styles.distanceText}>Distance: {distance} km</Text>
-          </View>
-        )}
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
+
+        <TouchableOpacity
+          style={styles.hamburgerButton}
+          onPress={() => drawerRef.current.openDrawer()}
         >
+          <Ionicons name="menu" size={32} color="black" />
+        </TouchableOpacity>
+
+        <Button title="Recenter" onPress={handleRecenter} />
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Distance Details</Text>
               <Text style={styles.modalText}>Distance: {distance} km</Text>
-              <Button title="Close" onPress={() => setModalVisible(false)} />
+              <Text style={styles.modalText}>
+                Forecast: {forecastLoading ? 'Loading...' : forecast !== null ? forecast : 'No data'}
+              </Text>
+              {error && <Text style={styles.errorText}>{error}</Text>}
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.forecastButton}
+                onPress={() => handleForecast()}
+              >
+                <Text style={styles.forecastButtonText}>Get Forecast</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
@@ -135,74 +172,61 @@ export default function Maps() {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
-  menuIcon: {
+  hamburgerButton: {
     position: 'absolute',
-    top: 20, // Lifted a few spaces above
-    left: 20,
-    zIndex: 10,
-    backgroundColor: '#6200EE', // Application's default primary color
+    top: 40,
+    left: 10,
     padding: 10,
-    borderRadius: 50, // Circular shape
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  recenterButton: {
-    position: 'absolute',
-    bottom: 120,
-    right: 20,
-    backgroundColor: '#6200EE', // Application's default primary color
-    padding: 10,
+    backgroundColor: 'white',
     borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  distanceContainer: {
-    position: 'absolute',
-    bottom: 60,
-    left: 20,
-    right: 20,
-    backgroundColor: '#6200EE',
-    padding: 15,
-    alignItems: 'center',
-    borderRadius: 10,
-    elevation: 5,
-  },
-  distanceText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 18, // Increased font size
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
   },
   modalContent: {
-    backgroundColor: 'white',
+    width: 300,
     padding: 20,
+    backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    elevation: 5,
   },
   modalText: {
     fontSize: 16,
-    marginVertical: 10,
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#2196F3',
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  forecastButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#FF5722',
+    borderRadius: 5,
+  },
+  forecastButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
   },
 });
