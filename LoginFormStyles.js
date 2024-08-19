@@ -84,6 +84,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
   },
+  errorContainer: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: 'red',
+    padding: 10,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
+  },
 });
 
 export default styles;

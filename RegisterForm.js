@@ -1,24 +1,34 @@
-import { Picker } from '@react-native-picker/picker'; // Import the Picker from the new package
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Button, Text, TextInput, View } from 'react-native';
-import styles from './LoginFormStyles'; // Import the styles
+import styles from './LoginFormStyles';
+import SlidingMessage from './SlidingMessage';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [boatType, setBoatType] = useState('canoe');
-  const navigation = useNavigation(); // Access the navigation object
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showError, setShowError] = useState(false);
+  const navigation = useNavigation();
 
   const handleRegister = () => {
-    // Handle registration logic here
-    console.log('Email:', email);
-    console.log('Username:', username);
-    console.log('Password:', password);
-    console.log('Boat Type:', boatType);
+    if (/^\d/.test(username)) {
+      setErrorMessage('Username cannot start with a number.');
+      setShowError(true);
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setErrorMessage('Please enter a valid email address.');
+      setShowError(true);
+      return;
+    }
 
-    // Navigate back to the Login screen after registration
+    // Clear error and navigate
+    setShowError(false);
+    setErrorMessage('');
     navigation.navigate('Login');
   };
 
@@ -72,6 +82,9 @@ export default function RegisterForm() {
           <Button title="Register" onPress={handleRegister} color="green" />
         </View>
       </View>
+
+      {/* Sliding Error Message */}
+      <SlidingMessage message={errorMessage} visible={showError} />
     </View>
   );
 }

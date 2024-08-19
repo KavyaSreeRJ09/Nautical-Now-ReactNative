@@ -12,6 +12,11 @@ const marinaBeachCoords = {
   longitude: 80.2824,
 };
 
+const pulicatLakeCoords = {
+  latitude: 13.22,
+  longitude: 80.33,
+};
+
 export default function Maps() {
   const route = useRoute();
   const { location } = route.params;
@@ -44,6 +49,18 @@ export default function Maps() {
     };
     setRegion(newRegion);
     setMarkerPosition(marinaBeachCoords);
+    setClickedPosition(null);
+    setDistance(null);
+  };
+
+  const handleRedirectToPulicat = () => {
+    const newRegion = {
+      ...pulicatLakeCoords,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    };
+    setRegion(newRegion);
+    setMarkerPosition(pulicatLakeCoords);
     setClickedPosition(null);
     setDistance(null);
   };
@@ -147,6 +164,15 @@ export default function Maps() {
         </TouchableOpacity>
 
         <Button title="Recenter" onPress={handleRecenter} />
+
+        {/* Icon to redirect to Pulicat Lake */}
+        <TouchableOpacity
+          style={styles.routeButton}
+          onPress={handleRedirectToPulicat}
+        >
+          <Ionicons name="navigate" size={32} color="white" />
+        </TouchableOpacity>
+
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
@@ -190,6 +216,14 @@ const styles = StyleSheet.create({
     left: 10,
     padding: 10,
     backgroundColor: 'white',
+    borderRadius: 50,
+  },
+  routeButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: 10,
+    padding: 10,
+    backgroundColor: '#2196F3',
     borderRadius: 50,
   },
   modalContainer: {
