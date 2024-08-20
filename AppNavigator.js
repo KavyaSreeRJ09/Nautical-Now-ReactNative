@@ -11,9 +11,9 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginForm} />
-        <Stack.Screen name="Register" component={RegisterForm} />
-        <Stack.Screen name="Maps" component={Maps} />
+        <Stack.Screen name="Login" component={LoginForm} options={{ headerShown: false }} />
+        <Stack.Screen name="Register" component={RegisterForm} options={{ headerShown: false }} />
+        <Stack.Screen name="Maps" component={Maps} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

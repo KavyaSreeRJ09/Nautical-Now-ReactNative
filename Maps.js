@@ -4,18 +4,23 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DrawerLayout } from 'react-native-gesture-handler';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Circle, Marker, Polyline } from 'react-native-maps';
 import Sidebar from './Sidebar';
 
-const marinaBeachCoords = {
-  latitude: 13.0475,
-  longitude: 80.2824,
+const specificCoords = {
+  latitude: 10.821487179487,
+  longitude: 90.048732583518,
 };
 
-const pulicatLakeCoords = {
-  latitude: 13.22,
-  longitude: 80.33,
-};
+// Coordinates for unsafe zones (Example coordinates)
+const unsafeZoneCoordinates = [
+  { latitude: 10.5, longitude: 89.5 },
+  { latitude: 10.5, longitude: 90.5 },
+  { latitude: 11.5, longitude: 90.5 },
+  { latitude: 11.5, longitude: 89.5 },
+];
+
+const circleRadius = 50000; // Radius of the circle in meters
 
 export default function Maps() {
   const route = useRoute();
@@ -23,15 +28,15 @@ export default function Maps() {
   const drawerRef = React.createRef();
 
   const [region, setRegion] = useState({
-    latitude: location ? location.latitude : marinaBeachCoords.latitude,
-    longitude: location ? location.longitude : marinaBeachCoords.longitude,
+    latitude: location ? location.latitude : specificCoords.latitude,
+    longitude: location ? location.longitude : specificCoords.longitude,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
 
   const [markerPosition, setMarkerPosition] = useState({
-    latitude: location ? location.latitude : marinaBeachCoords.latitude,
-    longitude: location ? location.longitude : marinaBeachCoords.longitude,
+    latitude: location ? location.latitude : specificCoords.latitude,
+    longitude: location ? location.longitude : specificCoords.longitude,
   });
 
   const [clickedPosition, setClickedPosition] = useState(null);
@@ -43,24 +48,25 @@ export default function Maps() {
 
   const handleRecenter = () => {
     const newRegion = {
-      ...marinaBeachCoords,
+      ...specificCoords,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     };
     setRegion(newRegion);
-    setMarkerPosition(marinaBeachCoords);
+    setMarkerPosition(specificCoords);
     setClickedPosition(null);
     setDistance(null);
   };
 
   const handleRedirectToPulicat = () => {
     const newRegion = {
-      ...pulicatLakeCoords,
+      latitude: 17.69,
+      longitude: 83.30,
       latitudeDelta: 0.0922,
       longitudeDelta: 0.0421,
     };
     setRegion(newRegion);
-    setMarkerPosition(pulicatLakeCoords);
+    setMarkerPosition(newRegion);
     setClickedPosition(null);
     setDistance(null);
   };
@@ -96,22 +102,19 @@ export default function Maps() {
       try {
         const API_URL = 'http://192.168.43.211:5000/api/forecast';
         const response = await axios.post(API_URL, { ssh_data: [clickedPosition.latitude, clickedPosition.longitude] });
-        console.log(clickedPosition.latitude, clickedPosition.longitude);
         setForecast(response.data.forecast);
-        console.log('Forecast Data:', response.data);
       } catch (error) {
-        console.error('Error fetching forecast:', error.response ? error.response.data : error.message);
         setError(`Error fetching forecast: ${error.response ? error.response.data.error : error.message}`);
       } finally {
         setForecastLoading(false);
       }
-    }
-  
+    };
+
     if (!clickedPosition) {
       console.error('Clicked position is not defined.');
       return;
     }
-  
+
     setForecastLoading(true);
     setError(null);
     getData();
@@ -120,7 +123,6 @@ export default function Maps() {
   useEffect(() => {
     handleForecast();
   }, [modalVisible]);
-  
 
   return (
     <DrawerLayout
@@ -145,7 +147,7 @@ export default function Maps() {
               <Marker
                 coordinate={clickedPosition}
                 title="Clicked Position"
-                pinColor="red"
+                pinColor="green"
               />
               <Polyline
                 coordinates={[markerPosition, clickedPosition]}
@@ -154,6 +156,19 @@ export default function Maps() {
               />
             </>
           )}
+
+          {/* Unsafe Zone Circles */}
+          {unsafeZoneCoordinates.map((coord, index) => (
+            <Circle
+              key={index}
+              center={coord}
+              radius={circleRadius}
+              strokeColor="red"
+              strokeWidth={2}
+              fillColor="rgba(255, 0, 0, 0.2)" // Light red fill color
+            />
+          ))}
+
         </MapView>
 
         <TouchableOpacity
@@ -177,9 +192,23 @@ export default function Maps() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>Distance: {distance} km</Text>
-              <Text style={styles.modalText}>
-                Forecast: {forecastLoading ? 'Loading...' : forecast !== null ? forecast : 'No data'}
-              </Text>
+              {forecastLoading ? (
+                <Text style={styles.modalText}>Loading...</Text>
+              ) : forecast !== null ? (
+                <>
+                  <Text style={styles.modalText}>Forecast Value: {forecast}</Text>
+                  <Text
+                    style={[
+                      styles.modalText,
+                      forecast >= 11 ? styles.notSafeText : styles.safeText
+                    ]}
+                  >
+                    {forecast >= 11 ? 'Not Safe Zone' : 'Safe Zone'}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.modalText}>No data</Text>
+              )}
               {error && <Text style={styles.errorText}>{error}</Text>}
               <TouchableOpacity
                 style={styles.closeButton}
@@ -196,6 +225,7 @@ export default function Maps() {
             </View>
           </View>
         </Modal>
+
       </View>
     </DrawerLayout>
   );
@@ -236,36 +266,40 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
-    alignItems: 'center',
     elevation: 5,
   },
   modalText: {
     fontSize: 16,
     marginBottom: 10,
   },
+  safeText: {
+    color: 'green',
+  },
+  notSafeText: {
+    color: 'red',
+  },
   closeButton: {
-    marginTop: 10,
+    marginTop: 20,
     padding: 10,
-    backgroundColor: '#2196F3',
+    backgroundColor: '#f44336',
     borderRadius: 5,
   },
   closeButtonText: {
     color: 'white',
-    fontSize: 16,
+    textAlign: 'center',
   },
   forecastButton: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: '#FF5722',
+    backgroundColor: '#4CAF50',
     borderRadius: 5,
   },
   forecastButtonText: {
     color: 'white',
-    fontSize: 16,
+    textAlign: 'center',
   },
   errorText: {
     color: 'red',
-    fontSize: 14,
-    marginBottom: 10,
+    marginTop: 10,
   },
 });
