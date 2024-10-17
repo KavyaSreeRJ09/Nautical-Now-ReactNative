@@ -7,3 +7,8 @@ Nautical Now is a mobile application developed using the React Native framework 
 ## Technologies Used
 React-Native: 0.74.3
 Expo: 2.31.1
+
+# UI Screenshots
+## Login and Register Page
+![image](https://github.com/user-attachments/assets/acfe6533-18e0-471a-94cc-b065738bdc7d)
+
