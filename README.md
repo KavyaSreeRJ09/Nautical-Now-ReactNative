@@ -19,6 +19,11 @@ Before you begin, ensure you have the following software installed:
 1. Clone the repository:
    ` git clone <repo link>
 
+# Running the Application
+1. Start the development server: npx expo start This will start the Expo development server and display a QR code in the terminal.
+2. Install the Expo Go app on your mobile device.
+3. Scan the QR code displayed in the terminal using the Expo Go app to run the app on your device.
+
 # UI Screenshots
 ## Login and Register Page
 ![image](https://github.com/user-attachments/assets/acfe6533-18e0-471a-94cc-b065738bdc7d)
