@@ -8,6 +8,17 @@ Nautical Now is a mobile application developed using the React Native framework 
 React-Native: 0.74.3
 Expo: 2.31.1
 
+# Getting Started
+## Prerequisites
+Before you begin, ensure you have the following software installed:
+
+- Node.js (v14 or later)
+- Expo CLI (v4 or later)
+
+## Installation
+1. Clone the repository:
+   ` git clone <repo link>
+
 # UI Screenshots
 ## Login and Register Page
 ![image](https://github.com/user-attachments/assets/acfe6533-18e0-471a-94cc-b065738bdc7d)
