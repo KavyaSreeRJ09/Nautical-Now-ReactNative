@@ -17,6 +17,8 @@ Before you begin, ensure you have the following software installed:
 
 ## Installation
 1. Clone the repository: run
+
+   
    ` git clone <repo link>`
 
 # Running the Application
