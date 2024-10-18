@@ -16,8 +16,8 @@ Before you begin, ensure you have the following software installed:
 - Expo CLI (v4 or later)
 
 ## Installation
-1. Clone the repository:
-   ` git clone <repo link>
+1. Clone the repository: run
+   ` git clone <repo link>`
 
 # Running the Application
 1. Start the development server: npx expo start This will start the Expo development server and display a QR code in the terminal.
