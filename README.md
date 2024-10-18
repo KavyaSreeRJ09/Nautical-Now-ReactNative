@@ -16,10 +16,28 @@ Before you begin, ensure you have the following software installed:
 - Expo CLI (v4 or later)
 
 ## Installation
-1. Clone the repository: run
+1. Clone the repository: 
 
-   
-   ` git clone <repo link>`
+   ```
+   git clone https://github.com/KavyaSreeRJ09/Nautical-Now-ReactNative
+   cd Nautical-Now-ReactNative
+   ```
+2. Install dependencies:
+
+   ```
+   npm install
+   ```
+3. To run in your local machine:
+
+   ```
+   npx expo start
+   ```
+4. To run python server:
+
+   ```
+   cd backend
+   python main.py
+   ```
 
 # Running the Application
 1. Start the development server: npx expo start This will start the Expo development server and display a QR code in the terminal.
