@@ -27,22 +27,20 @@ Before you begin, ensure you have the following software installed:
    ```
    npm install
    ```
-3. To run in your local machine:
 
+# Running the Application
+1. Start the development server:
    ```
    npx expo start
    ```
-4. To run python server:
-
+   This will start the Expo development server and display a QR code in the terminal.
+2. Start the python server:
    ```
    cd backend
    python main.py
    ```
-
-# Running the Application
-1. Start the development server: npx expo start This will start the Expo development server and display a QR code in the terminal.
-2. Install the Expo Go app on your mobile device.
-3. Scan the QR code displayed in the terminal using the Expo Go app to run the app on your device.
+3. Install the Expo Go app on your mobile device.
+4. Scan the QR code displayed in the terminal using the Expo Go app to run the app on your device.
 
 # UI Screenshots
 ## Login and Register Page
