@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DrawerLayout } from 'react-native-gesture-handler';
 import MapView, { Circle, Marker, Polyline } from 'react-native-maps';
@@ -45,6 +45,35 @@ export default function Maps() {
   const [forecast, setForecast] = useState(null);
   const [forecastLoading, setForecastLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [animationProgress, setAnimationProgress] = useState(0);
+
+  const boatIconRef = useRef(null);
+
+  useEffect(() => {
+    if (isNavigating && clickedPosition) {
+      // Start animation when navigation begins
+      const interval = setInterval(() => {
+        setAnimationProgress((prev) => {
+          const newProgress = prev + 0.01;
+          if (newProgress >= 1) {
+            clearInterval(interval);
+            setIsNavigating(false); // Stop navigation when it reaches the destination
+            return 1;
+          }
+
+          // Log the interpolated position
+          const interpolatedPosition = {
+            latitude: markerPosition.latitude + (clickedPosition.latitude - markerPosition.latitude) * newProgress,
+            longitude: markerPosition.longitude + (clickedPosition.longitude - markerPosition.longitude) * newProgress,
+          };
+          console.log(`Boat Position: ${interpolatedPosition.latitude}, ${interpolatedPosition.longitude}`);
+
+          return newProgress;
+        });
+      }, 100);
+    }
+  }, [isNavigating]);
 
   const handleRecenter = () => {
     const newRegion = {
@@ -56,6 +85,8 @@ export default function Maps() {
     setMarkerPosition(specificCoords);
     setClickedPosition(null);
     setDistance(null);
+    setIsNavigating(false); // Stop navigation
+    setAnimationProgress(0); // Reset animation progress
   };
 
   const handleRedirectToPulicat = () => {
@@ -69,6 +100,8 @@ export default function Maps() {
     setMarkerPosition(newRegion);
     setClickedPosition(null);
     setDistance(null);
+    setIsNavigating(false); // Stop navigation
+    setAnimationProgress(0); // Reset animation progress
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -121,8 +154,22 @@ export default function Maps() {
   };
 
   useEffect(() => {
-    handleForecast();
+    if (modalVisible) {
+      handleForecast();
+    }
   }, [modalVisible]);
+
+  const startNavigation = () => {
+    setIsNavigating(true);  // Start navigation
+    setAnimationProgress(0);  // Reset animation progress
+    setModalVisible(false);  // Hide the modal when navigation starts
+  };
+  
+
+  const interpolatedPosition = clickedPosition ? {
+    latitude: markerPosition.latitude + (clickedPosition.latitude - markerPosition.latitude) * animationProgress,
+    longitude: markerPosition.longitude + (clickedPosition.longitude - markerPosition.longitude) * animationProgress,
+  } : markerPosition;
 
   return (
     <DrawerLayout
@@ -143,12 +190,22 @@ export default function Maps() {
             title="You are here"
           />
           {clickedPosition && (
+            <Marker
+              coordinate={clickedPosition}
+              title="Clicked Position"
+              pinColor="green"
+            />
+          )}
+          {isNavigating && clickedPosition && (
             <>
               <Marker
-                coordinate={clickedPosition}
-                title="Clicked Position"
-                pinColor="green"
-              />
+                coordinate={interpolatedPosition}
+                title="Boat"
+                ref={boatIconRef}
+                pinColor="blue"
+              >
+                <Ionicons name="boat" size={32} color="blue" />
+              </Marker>
               <Polyline
                 coordinates={[markerPosition, clickedPosition]}
                 strokeColor="#000"
@@ -168,7 +225,6 @@ export default function Maps() {
               fillColor="rgba(255, 0, 0, 0.2)" // Light red fill color
             />
           ))}
-
         </MapView>
 
         <TouchableOpacity
@@ -178,7 +234,7 @@ export default function Maps() {
           <Ionicons name="menu" size={32} color="black" />
         </TouchableOpacity>
 
-        <Button title="Recenter" onPress={handleRecenter} />
+        <Button title=" " onPress={handleRecenter} />
 
         {/* Icon to redirect to Pulicat Lake */}
         <TouchableOpacity
@@ -198,29 +254,32 @@ export default function Maps() {
                 <>
                   <Text style={styles.modalText}>Forecast Value: {forecast}</Text>
                   <Text
-                    style={[
-                      styles.modalText,
-                      forecast >= 11 ? styles.notSafeText : styles.safeText
-                    ]}
+                    style={[styles.modalText, forecast >= 11 ? styles.notSafeText : styles.safeText]}
                   >
-                    {forecast >= 11 ? 'Not Safe Zone' : 'Safe Zone'}
+                    {forecast >= 11 ? 'Not Safe' : 'Safe'}
                   </Text>
                 </>
               ) : (
-                <Text style={styles.modalText}>No data</Text>
+                error && <Text style={styles.errorText}>{error}</Text>
               )}
-              {error && <Text style={styles.errorText}>{error}</Text>}
+
+              <TouchableOpacity
+                style={styles.forecastButton}
+                onPress={handleForecast}
+              >
+                <Text style={styles.forecastButtonText}>Get Forecast</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.navigationButton}
+                onPress={startNavigation}  // Navigation starts here, and modal closes
+              >
+                <Text style={styles.navigationButtonText}>Start Navigation</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setModalVisible(false)}
               >
                 <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.forecastButton}
-                onPress={() => handleForecast()}
-              >
-                <Text style={styles.forecastButtonText}>Get Forecast</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -234,39 +293,37 @@ export default function Maps() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
   },
   map: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
   },
   hamburgerButton: {
     position: 'absolute',
-    top: 40,
+    top: 30,
     left: 10,
-    padding: 10,
-    backgroundColor: 'white',
-    borderRadius: 50,
+    zIndex: 1,
   },
   routeButton: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 70,
     right: 10,
-    padding: 10,
     backgroundColor: '#2196F3',
-    borderRadius: 50,
+    padding: 10,
+    borderRadius: 5,
+    zIndex: 1,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
-    padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
-    elevation: 5,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
   },
   modalText: {
     fontSize: 16,
@@ -278,10 +335,14 @@ const styles = StyleSheet.create({
   notSafeText: {
     color: 'red',
   },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+  },
   closeButton: {
-    marginTop: 20,
+    marginTop: 10,
+    backgroundColor: '#2196F3',
     padding: 10,
-    backgroundColor: '#f44336',
     borderRadius: 5,
   },
   closeButtonText: {
@@ -290,16 +351,22 @@ const styles = StyleSheet.create({
   },
   forecastButton: {
     marginTop: 10,
+    backgroundColor: '#2196F3',
     padding: 10,
-    backgroundColor: '#4CAF50',
     borderRadius: 5,
   },
   forecastButtonText: {
     color: 'white',
     textAlign: 'center',
   },
-  errorText: {
-    color: 'red',
+  navigationButton: {
     marginTop: 10,
+    backgroundColor: '#2196F3',
+    padding: 10,
+    borderRadius: 5,
+  },
+  navigationButtonText: {
+    color: 'white',
+    textAlign: 'center',
   },
 });

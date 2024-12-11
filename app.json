@@ -2,6 +2,11 @@
   "expo": {
     "name": "nauticalnow",
     "slug": "nauticalnow",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "a8780b02-8426-49ba-a0b4-3d333e159aa1"
+      }
+    }
   }
 }
