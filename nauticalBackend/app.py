@@ -1,4 +1,3 @@
-import bcrypt
 import joblib
 import numpy as np
 import tensorflow as tf
@@ -20,13 +19,13 @@ collection = db['users_nautical_now']
 model = tf.keras.models.load_model('lstm_model.h5')
 scaler = joblib.load('scaler.pkl')
 
-@app.route('/api/register', methods=['GET','POST'])
+@app.route('/api/register', methods=['POST'])
 def register_user():
     try:
         data = request.json
         username = data.get('username')
         email = data.get('emailId')
-        password = data.get('password')
+        password = data.get('password')  # Plain text password
         boat_type = data.get('boatType')
 
         if not username or not email or not password:
@@ -35,13 +34,10 @@ def register_user():
         if collection.find_one({'email': email}):
             return jsonify({'error': 'User already exists with this email'}), 400
 
-        # Hash the password using bcrypt
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
         user = {
             'username': username,
             'email': email,
-            'password': hashed_password,  # Store hashed password
+            'password': password,  # Store plain text password
             'boatType': boat_type
         }
 
@@ -51,34 +47,33 @@ def register_user():
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         return jsonify({'error': 'An error occurred while registering'}), 500
-'''
+
 @app.route('/api/login', methods=['POST'])
 def login_user():
     try:
         data = request.json
         email = data.get('emailId')
-        password = data.get('password')
+        password = data.get('password')  # Plain text password
 
         if not email or not password:
             return jsonify({'error': 'Email and password are required'}), 400
 
+        # Find the user by email
         user = collection.find_one({'email': email})
 
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
-        # Check the hashed password
-        if not bcrypt.checkpw(password.encode('utf-8'), user['password']):
+        # Check the plain text password
+        if password != user['password']:
             return jsonify({'error': 'Incorrect password'}), 400
 
-        return jsonify({'success': True}), 200
+        return jsonify({'success': True, 'message': 'Login successful'}), 200
 
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         return jsonify({'error': 'An error occurred while logging in'}), 500
 
-
-'''
 @app.route('/api/forecast', methods=['POST'])
 def get_forecast():
     try:
