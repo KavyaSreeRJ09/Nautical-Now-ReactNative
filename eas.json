@@ -1,0 +1,19 @@
+{
+  "cli": {
+    "version": ">= 12.6.0",
+    "appVersionSource": "remote"
+  },
+    "build": {
+      "release": {
+        "android": {
+          "buildType": "app-bundle"
+        }
+      },
+      "release1": {
+        "android": {
+          "buildType": "apk"
+        }
+      }
+    }
+  
+}
